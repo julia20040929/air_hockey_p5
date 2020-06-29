@@ -36,7 +36,7 @@ class Ball {
 
   move(t) {
     this.x += t * this.vx;
-    this.y += t + this.vy;
+    this.y += t * this.vy;
   }
 
   xt(t) {
@@ -155,9 +155,6 @@ function draw() {
   rect(0, 0, LENGTH, WIDTH);
   for (var i = 0; i < obstacles.length; i++)
     obstacles[i].draw();
-
-  // ball.draw();
-  // ball.move(1);
 
   doMove();
   ball.draw();
