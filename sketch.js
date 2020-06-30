@@ -12,6 +12,7 @@ const WALL_SIZE = WIDTH / 50;
 const GOAL_SIZE = WIDTH / 3;           // szerokość bramki
 const BALL_SIZE = WIDTH / 8;            // wielkość piłki
 const HAMMER_SIZE = WIDTH / 6;          // wielkość bijaka 
+const POST_SIZE = WALL_SIZE * 1.5;      // wielkość słupka
 
 const BALL_COLOR = "#cc9900";            // kolor piłki
 const HAMMER_COLOR = "#663300";           // kolor bijaka
@@ -24,8 +25,8 @@ class Ball {
     this.x = random(5 + BALL_SIZE / 2, LENGTH - BALL_SIZE / 2 - 5);
     this.y = random(5 + BALL_SIZE / 2, WIDTH - BALL_SIZE / 2 - 5);
     this.r = BALL_SIZE / 2;
-    this.vx = random(-25, 25);
-    this.vy = random(-25, 25);
+    this.vx = random(-10, 10);
+    this.vy = random(-10, 10);
   }
 
   draw() {
@@ -106,6 +107,72 @@ class Wall {
   }
 }
 
+class Post {
+  constructor(x, y, r) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+  }
+
+  draw() {
+
+    fill(255);
+    noStroke();
+    circle(this.x, this.y, this.r * 2);
+
+  }
+
+  findCollisionTime(ball) {
+
+    const A = ball.x - this.x;
+    const B = ball.y - this.y;
+    const C = ball.vx - 0;
+    const D = ball.vy - 0;
+    const R = ball.r + this.r;
+    const v2 = C * C + D * D;
+    const delta = v2 * R * R - pow(A * D - B * C, 2);
+    if (delta < 0) {
+      return Infinity;
+    }
+
+    const t1 = (-A * C - B * D - sqrt(delta)) / v2;
+    const t2 = (-A * C - B * D + sqrt(delta)) / v2;
+
+    let t = min(t1, t2);
+    if (t > TIME_EPSILON)
+      return t - TIME_EPSILON;
+
+    t = max(t1, t2);
+    if (t > TIME_EPSILON)
+      return t - TIME_EPSILON;
+
+    return Infinity;
+  }
+
+  handleCollision(ball) {
+
+    const ax = ball.x - this.x;
+    const ay = ball.y - this.y;
+    const a = sqrt(ax * ax + ay * ay);
+
+    const ex = ax / a;
+    const ey = ay / a;
+
+    const ue = ball.vx * ex + ball.vy * ey;
+    const uz = - ball.vx * ey + ball.vy * ex;
+
+    const ve = - ue;
+    const vz = uz;
+
+    const vx = ex * ve - ey * vz;
+    const vy = ex * vz + ey * ve;
+
+    ball.vx = vx;
+    ball.vy = vy;
+
+  }
+}
+
 let ball;
 let obstacles = new Array();
 
@@ -117,6 +184,10 @@ function setup() {
   obstacles.push(new Wall(0, 0, LENGTH, 0));
   obstacles.push(new Wall(LENGTH, 0, LENGTH, WIDTH));
   obstacles.push(new Wall(LENGTH, WIDTH, 0, WIDTH));
+
+  for (var i = 0; i < 5; i++)
+
+    obstacles.push(new Post(random(50, 700), random(50, 600), POST_SIZE + random(20)));
 }
 
 function doMove() {
@@ -138,7 +209,7 @@ function doMove() {
     ball.move(tmin);
     if (idx != -1)
       obstacles[idx].handleCollision(ball);
-      
+
     time -= tmin;
   }
 }
