@@ -64,6 +64,27 @@ class Wall {
   }
 
   findCollisionTime(ball) {
+    // const A = this.x2 - this.x1;
+    // const B = this.y2 - this.y1;
+    // const E = ball.x - this.x1;
+    // const F = ball.y - this.y1;
+    // const R = ball.r + WALL_SIZE / 2;
+
+    // const den = A * ball.vy - B * ball.vx;
+    // if (den == 0.0)
+    //   return Infinity;
+
+    // const t = (R * sqrt(A * A + B * B) + B * E - A * F) / den;
+    // if (t < TIME_EPSILON)
+    //   return Infinity;
+
+    // const u = (A * (ball.xt(t) - this.x1) + B * (ball.yt(t) - this.y1)) / (A * A + B * B);
+    // if ((u < 0.0) || (u > 1.0))
+    //   return Infinity;
+
+    // return t - TIME_EPSILON;
+
+
     const A = this.x2 - this.x1;
     const B = this.y2 - this.y1;
     const E = ball.x - this.x1;
@@ -74,7 +95,10 @@ class Wall {
     if (den == 0.0)
       return Infinity;
 
-    const t = (R * sqrt(A * A + B * B) + B * E - A * F) / den;
+    const t1 = (B * E - A * F - R * sqrt(A * A + B * B)) / den;
+    const t2 = (B * E - A * F + R * sqrt(A * A + B * B)) / den;
+
+    const t = min(t1, t2);
     if (t < TIME_EPSILON)
       return Infinity;
 
@@ -186,7 +210,6 @@ function setup() {
   obstacles.push(new Wall(LENGTH, WIDTH, 0, WIDTH));
 
   for (var i = 0; i < 5; i++)
-
     obstacles.push(new Post(random(50, 700), random(50, 600), POST_SIZE + random(20)));
 }
 
