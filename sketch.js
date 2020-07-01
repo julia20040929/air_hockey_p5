@@ -19,6 +19,7 @@ const HAMMER_COLOR = "#663300";           // kolor bijaka
 
 const TIME_EPSILON = 0.00001;
 
+// TODO: Dodac zliczanie i wyswietlanie goli
 
 class Ball {
   constructor() {
@@ -109,7 +110,6 @@ class Wall {
     ball.vy = vy;
   }
 }
-
 class Post {
   constructor(x, y, r) {
     this.x = x;
@@ -176,8 +176,12 @@ class Post {
   }
 }
 
+// TODO: Dodac klasę Hammer
+
 let ball;
 let obstacles = new Array();
+
+// NOTE: Dodac funkcje buildWalls([x1, y1, x2, y2, ...]) do budowania sciany zlozonej z segmentow
 
 function setup() {
   createCanvas(SCREEN_LENGTH, SCREEN_WIDTH);
@@ -231,4 +235,5 @@ function draw() {
 
   doMove();
   ball.draw();
+  // FIX: Zamiast ruchu jednostajnie prostoliniowego pilki zaimplementowac ruch jednostajnie opozniony
 }
