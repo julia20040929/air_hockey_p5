@@ -18,6 +18,7 @@ const BALL_COLOR = "#cc9900";            // kolor piłki
 const HAMMER_COLOR = "#663300";           // kolor bijaka
 
 const TIME_EPSILON = 0.00001;
+const DECELERATION_FACTOR = 0.02;
 
 // TODO: Dodac zliczanie i wyswietlanie goli
 
@@ -176,17 +177,110 @@ class Post {
   }
 }
 
-// TODO: Dodac klasę Hammer
+class Hammer {
+  constructor() {
+    this.x = LENGTH / 2;
+    this.y = WIDTH / 2;
+    this.r = HAMMER_SIZE / 2;
+    this.vx = 0;
+    this.vy = 0;
+  }
 
+  draw() {
+
+    fill(HAMMER_COLOR);
+    noStroke();
+    circle(this.x, this.y, this.r * 2);
+
+  }
+
+  findCollisionTime(ball) {
+
+    const A = ball.x - this.x;
+    const B = ball.y - this.y;
+    const C = ball.vx - this.vx;
+    const D = ball.vy - this.vy;
+    const R = ball.r + this.r;
+    const v2 = C * C + D * D;
+    const delta = v2 * R * R - pow(A * D - B * C, 2);
+    if (delta < 0) {
+      return Infinity;
+    }
+
+    const t1 = (-A * C - B * D - sqrt(delta)) / v2;
+    const t2 = (-A * C - B * D + sqrt(delta)) / v2;
+
+    let t = min(t1, t2);
+    if (t > TIME_EPSILON)
+      return t - TIME_EPSILON;
+
+    t = max(t1, t2);
+    if (t > TIME_EPSILON)
+      return t - TIME_EPSILON;
+
+    return Infinity;
+  }
+
+  handleCollision(ball) {
+
+    const ax = ball.x - this.x;
+    const ay = ball.y - this.y;
+    const a = sqrt(ax * ax + ay * ay);
+
+    const ex = ax / a;
+    const ey = ay / a;
+
+    const uhe = this.vx * ex + this.vy * ey;
+    const uhz = -this.vx * ey + this.vy * ex;
+
+    const ube = ball.vx * ex + ball.vy * ey;
+    const ubz = - ball.vx * ey + ball.vy * ex;
+
+    const vhe = uhe;
+    const vhz = uhz;
+
+    const vbe = 2 * uhe - ube;
+    const vbz = ubz;
+
+    const vhx = ex * vhe - ey * vhz;
+    const vhy = ex * vhz + ey * vhe;
+
+    const vbx = ex * vbe - ey * vbz;
+    const vby = ex * vbz + ey * vbe;
+
+    ball.vx = vbx;
+    ball.vy = vby;
+  }
+  move(t) {
+    this.x += this.vx * t;
+    this.y += this.vy * t;
+  }
+  prepMove(mx, my) {
+    mx = constrain(mx, HAMMER_SIZE / 1.5, LENGTH - HAMMER_SIZE / 1.5);
+    my = constrain(my, HAMMER_SIZE / 1.5, WIDTH - HAMMER_SIZE / 1.5);
+
+    this.vx = (mx - this.x) / 2;
+    this.vy = (my - this.y) / 2;
+  }
+}
+
+let hammer;
 let ball;
 let obstacles = new Array();
 
-// NOTE: Dodac funkcje buildWalls([x1, y1, x2, y2, ...]) do budowania sciany zlozonej z segmentow
+function buildWalls(pts) {
+  for (var i = 0; i < pts.length / 2 - 1; i++)
+    obstacles.push(new Wall(pts[2 * i + 0], pts[2 * i + 1], pts[2 * i + 2], pts[2 * i + 3]))
+  for (var i = 0; i < pts.length / 2; i++)
+    obstacles.push(new Post(pts[2 * i + 0], pts[2 * i + 1], WALL_SIZE / 2));
+}
 
 function setup() {
   createCanvas(SCREEN_LENGTH, SCREEN_WIDTH);
   ball = new Ball();
+  hammer = new Hammer();
 
+  obstacles.push(hammer);
   obstacles.push(new Wall(0, WIDTH, 0, 0));
   obstacles.push(new Wall(0, 0, LENGTH, 0));
   obstacles.push(new Wall(LENGTH, 0, LENGTH, WIDTH));
@@ -194,6 +288,8 @@ function setup() {
 
   for (var i = 0; i < 5; i++)
     obstacles.push(new Post(random(50, 700), random(50, 600), POST_SIZE + random(20)));
+  buildWalls([100, 300, 150, 100, 450, 300]);
+
 }
 
 function doMove() {
@@ -211,7 +307,7 @@ function doMove() {
       }
     }
 
-    // hammer.move(tmin);
+    hammer.move(tmin);
     ball.move(tmin);
     if (idx != -1)
       obstacles[idx].handleCollision(ball);
@@ -233,7 +329,13 @@ function draw() {
   for (var i = 0; i < obstacles.length; i++)
     obstacles[i].draw();
 
+  const mx = mouseX - FIELD_OFFSET_X;
+  const my = height - mouseY - FIELD_OFFSET_Y;
+  hammer.prepMove(mx, my);
+
   doMove();
   ball.draw();
-  // FIX: Zamiast ruchu jednostajnie prostoliniowego pilki zaimplementowac ruch jednostajnie opozniony
+  hammer.draw();
+  ball.vx *= 1 - DECELERATION_FACTOR;
+  ball.vy *= 1 - DECELERATION_FACTOR;
 }
