@@ -326,7 +326,7 @@ function draw() {
   //rysowanie planszy
   fill(0, 0, 255);
   rect(0, 0, LENGTH, WIDTH);
-  for (var i = 0; i < obstacles.length; i++)
+  for (var i = 0; i < obstacles.length; i++)zepsuć
     obstacles[i].draw();
 
   const mx = mouseX - FIELD_OFFSET_X;
