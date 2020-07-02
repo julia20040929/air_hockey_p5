@@ -11,7 +11,7 @@ const WALL_SIZE = WIDTH / 50;
 
 const GOAL_SIZE = WIDTH / 3;           // szerokość bramki
 const BALL_SIZE = WIDTH / 8;            // wielkość piłki
-const HAMMER_SIZE = WIDTH / 6;          // wielkość bijaka 
+const HAMMER_SIZE = WIDTH / 8;          // wielkość bijaka 
 const POST_SIZE = WALL_SIZE * 1.5;      // wielkość słupka
 
 const BALL_COLOR = "#cc9900";            // kolor piłki
@@ -19,8 +19,6 @@ const HAMMER_COLOR = "#663300";           // kolor bijaka
 
 const TIME_EPSILON = 0.00001;
 const DECELERATION_FACTOR = 0.02;
-
-// TODO: Dodac zliczanie i wyswietlanie goli
 
 class Ball {
   constructor() {
@@ -264,15 +262,17 @@ class Hammer {
   }
 }
 
+let points = 1;
 let hammer;
 let ball;
 let obstacles = new Array();
 
 function buildWalls(pts) {
   for (var i = 0; i < pts.length / 2 - 1; i++)
-    obstacles.push(new Wall(pts[2 * i + 0], pts[2 * i + 1], pts[2 * i + 2], pts[2 * i + 3]))
+    obstacles.push(new Wall(pts[2 * i + 0], pts[2 * i + 1], pts[2 * i + 2], pts[2 * i + 3]));
   for (var i = 0; i < pts.length / 2; i++)
     obstacles.push(new Post(pts[2 * i + 0], pts[2 * i + 1], WALL_SIZE / 2));
+
 }
 
 function setup() {
@@ -281,14 +281,11 @@ function setup() {
   hammer = new Hammer();
 
   obstacles.push(hammer);
-  obstacles.push(new Wall(0, WIDTH, 0, 0));
-  obstacles.push(new Wall(0, 0, LENGTH, 0));
-  obstacles.push(new Wall(LENGTH, 0, LENGTH, WIDTH));
-  obstacles.push(new Wall(LENGTH, WIDTH, 0, WIDTH));
+  buildWalls([0, WIDTH / 3, 0, 0, LENGTH, 0, LENGTH, WIDTH, 0, WIDTH, 0, WIDTH * 2 / 3]);
 
   for (var i = 0; i < 5; i++)
     obstacles.push(new Post(random(50, 700), random(50, 600), POST_SIZE + random(20)));
-  buildWalls([100, 300, 150, 100, 450, 300]);
+  // buildWalls([100, 300, 150, 100, 450, 300]);
 
 }
 
@@ -318,6 +315,7 @@ function doMove() {
 
 function draw() {
   // odwrócenie układu współrzędnych (punkt (0,0) jest teraz w lewym, dolnym rogu)
+  push();
   scale(1, -1);
   translate(FIELD_OFFSET_X, FIELD_OFFSET_Y - height);
 
@@ -326,7 +324,7 @@ function draw() {
   //rysowanie planszy
   fill(0, 0, 255);
   rect(0, 0, LENGTH, WIDTH);
-  for (var i = 0; i < obstacles.length; i++)zepsuć
+  for (var i = 0; i < obstacles.length; i++)
     obstacles[i].draw();
 
   const mx = mouseX - FIELD_OFFSET_X;
@@ -338,4 +336,20 @@ function draw() {
   hammer.draw();
   ball.vx *= 1 - DECELERATION_FACTOR;
   ball.vy *= 1 - DECELERATION_FACTOR;
+
+  if (ball.x < -ball.r) {
+    points++;
+    
+    do {
+      ball = new Ball();
+      var dx = hammer.x - ball.x;
+      var dy = hammer.y - ball.y;
+    } while (sqrt(pow(dx, 2) + pow(dy, 2)) < ball.r + hammer.r);
+  }
+
+  pop();
+  textSize(64);
+  fill(255);
+  text(points, LENGTH / 2, 0.15 * SCREEN_WIDTH);
+
 }
