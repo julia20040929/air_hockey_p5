@@ -114,6 +114,8 @@ class Post {
     this.x = x;
     this.y = y;
     this.r = r;
+    this.vx = 0;
+    this.vy = 0; 
   }
 
   draw() {
@@ -128,8 +130,8 @@ class Post {
 
     const A = ball.x - this.x;
     const B = ball.y - this.y;
-    const C = ball.vx - 0;
-    const D = ball.vy - 0;
+    const C = ball.vx - this.vx;
+    const D = ball.vy - this.vy;
     const R = ball.r + this.r;
     const v2 = C * C + D * D;
     const delta = v2 * R * R - pow(A * D - B * C, 2);
