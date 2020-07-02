@@ -119,15 +119,12 @@ class Post {
   }
 
   draw() {
-
     fill(255);
     noStroke();
     circle(this.x, this.y, this.r * 2);
-
   }
 
   findCollisionTime(ball) {
-
     const A = ball.x - this.x;
     const B = ball.y - this.y;
     const C = ball.vx - this.vx;
@@ -154,7 +151,6 @@ class Post {
   }
 
   handleCollision(ball) {
-
     const ax = ball.x - this.x;
     const ay = ball.y - this.y;
     const a = sqrt(ax * ax + ay * ay);
@@ -173,7 +169,6 @@ class Post {
 
     ball.vx = vx;
     ball.vy = vy;
-
   }
 }
 
@@ -187,15 +182,12 @@ class Hammer {
   }
 
   draw() {
-
     fill(HAMMER_COLOR);
     noStroke();
     circle(this.x, this.y, this.r * 2);
-
   }
 
   findCollisionTime(ball) {
-
     const A = ball.x - this.x;
     const B = ball.y - this.y;
     const C = ball.vx - this.vx;
@@ -222,7 +214,6 @@ class Hammer {
   }
 
   handleCollision(ball) {
-
     const ax = ball.x - this.x;
     const ay = ball.y - this.y;
     const a = sqrt(ax * ax + ay * ay);
@@ -251,10 +242,12 @@ class Hammer {
     ball.vx = vbx;
     ball.vy = vby;
   }
+
   move(t) {
     this.x += this.vx * t;
     this.y += this.vy * t;
   }
+
   prepMove(mx, my) {
     mx = constrain(mx, HAMMER_SIZE / 1.5, LENGTH - HAMMER_SIZE / 1.5);
     my = constrain(my, HAMMER_SIZE / 1.5, WIDTH - HAMMER_SIZE / 1.5);
@@ -274,7 +267,6 @@ function buildWalls(pts) {
     obstacles.push(new Wall(pts[2 * i + 0], pts[2 * i + 1], pts[2 * i + 2], pts[2 * i + 3]));
   for (var i = 0; i < pts.length / 2; i++)
     obstacles.push(new Post(pts[2 * i + 0], pts[2 * i + 1], WALL_SIZE / 2));
-
 }
 
 function setup() {
@@ -288,7 +280,6 @@ function setup() {
   for (var i = 0; i < 5; i++)
     obstacles.push(new Post(random(50, 700), random(50, 600), POST_SIZE + random(20)));
   // buildWalls([100, 300, 150, 100, 450, 300]);
-
 }
 
 function doMove() {
@@ -353,5 +344,4 @@ function draw() {
   textSize(64);
   fill(255);
   text(points, LENGTH / 2, 0.15 * SCREEN_WIDTH);
-
 }
