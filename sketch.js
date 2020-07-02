@@ -262,7 +262,7 @@ class Hammer {
   }
 }
 
-let points = 0;
+let points = 7;
 let hammer;
 let ball;
 let obstacles = new Array();
